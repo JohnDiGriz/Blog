@@ -1,0 +1,104 @@
+﻿@model BlogTest.WEB.Models.BlogListViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@if (Model.IsAdmin)
+{
+    <div class="row" style="margin-top:20px">
+        <div class="col-md-12">
+            <a class="btn btn-primary" href="@Url.Action("Create", "Admin")">Create New Post</a>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-md-10">
+        @foreach (var blogPost in Model.BlogPosts)
+        {
+            <div class="row">
+                <div class="col-md-5">
+                    <h1>@blogPost.Name</h1>
+                    </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <img class="img-thumbnail main-img" src="@blogPost.MainPicture" 
+                         style="max-height: 360px; max-width: 360px"/>
+                </div>
+            </div>            
+            <div class="row">
+                <div class="col-md-5">
+                    <h4>@blogPost.Author.UserName</h4>
+                </div>
+            </div>
+            <p><markdown>@blogPost.ShortText</markdown></p>
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="@Url.Action("Show", "Post", new { id = @blogPost.Id })">
+                        Details...
+                    </a>
+                    <span> | @blogPost.DateTimeStr | </span>
+                    <span>@blogPost.CommentsCount comment@(blogPost.CommentsCount != 1 ? "s" : "")</span>
+                </div>
+                <div class="col-md-4"></div>
+                @if (Model.IsAdmin)
+                {
+                    <div class="col-md-4" style="text-align:right">
+                        <a href="@Url.Action("Edit", "Admin", new { id = blogPost.Id })">
+                            Edit
+                        </a>
+                        <span> | </span>
+                        <a href="@Url.Action("Delete", "Admin", new { id = blogPost.Id, page = Model.PageNum })">
+                            Delete
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <ul class="pagination" data-bind="html: pagination">
+            <li class="page-item @(Model.PageNum == 1 ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", "Home", new { id = Model.PageNum - 1 })"><</a>
+            </li>
+            <li class="page-item @(Model.PageNum == 1 ? "active" : "")">
+                <a class="page-link" href="@Url.Action("Index", "Home", new { id = 1 })">1</a>
+            </li>
+            @{
+                var iMin = 2;
+                var iMax = Model.PageCount - 1;
+                bool isNotEnd = false;
+                const int DIAP = 3;
+            }
+            @if (Model.PageNum - DIAP > iMin)
+            {
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+                iMin = Model.PageNum - DIAP;
+            }
+            @if (Model.PageNum + DIAP < iMax)
+            {
+                isNotEnd = true;
+                iMax = Model.PageNum + DIAP;
+            }
+            @for (int i = iMin; i <= iMax; i++)
+            {
+                <li class="page-item @(Model.PageNum == i ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", "Home", new { id = i })">@i</a>
+                </li>
+            }
+            @if (isNotEnd) {
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+            }
+            @if (Model.PageCount > 1) {
+                <li class="page-item @(Model.PageNum == Model.PageCount ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", "Home", new { id = Model.PageCount })">@Model.PageCount</a>
+                </li>
+            }
+            <li class="page-item @(Model.PageNum >= Model.PageCount ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", "Home", new { id = Model.PageNum + 1 })">></a>
+            </li>
+        </ul>
+    </div>
+</div>

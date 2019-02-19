@@ -1,0 +1,38 @@
+﻿@model BlogTest.WEB.Models.BlogPostCreationViewModel
+@{
+    ViewData["Title"] = "Post Creation";
+}
+<form asp-antiforgery="true" asp-action=@(Model != null && Model.IsEdit?"Edit":"Create") asp-controller="Admin">
+    @Html.HiddenFor(x => x.Id)
+    @Html.HiddenFor(x => x.AuthorId)
+    @Html.HiddenFor(x => x.PostingTime)
+    <div>
+        <div class="validation" asp-validation-summary="ModelOnly"></div>
+        <div>
+            <label asp-for="Name"></label><br />
+            <input type="text" asp-for="Name" size="160"/>
+            <span asp-validation-for="Name"></span>
+        </div>
+        <div>
+            <label asp-for="ShortText"></label><br />
+            <textarea asp-for="ShortText" style="resize: none; align-self:center" cols="160"
+                    rows="20"></textarea>
+            <span asp-validation-for="ShortText"></span>
+        </div>
+        <div>
+            <label asp-for="LongText"></label><br />
+            <textarea asp-for="LongText" style="resize: none; align-self:center" cols="160"
+                    rows="100"></textarea>
+            <span asp-validation-for="LongText"></span>
+        </div>
+        <div>
+            <label asp-for="MainPicture"></label><br />
+            <input asp-for="MainPicture" size="160"/>
+            <span asp-validation-for="MainPicture"></span>
+        </div>
+        <div>
+            <input type="submit" value="Save" />
+        </div>
+    </div>
+</form>
+

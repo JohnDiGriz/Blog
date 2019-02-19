@@ -1,0 +1,131 @@
+﻿@model BlogTest.WEB.Models.BlogPostViewModel
+
+@{
+    ViewData["Title"] = "Show";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1 style="align-content:center">@Model.Name</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <span>@Model.Author.UserName</span>
+    </div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4" style="text-align:right">
+        <span>@Model.DateTimeStr</span>
+    </div>
+</div>
+<div style="align-content:center" class="row">
+    <div class="col-md-12">
+        <img class="img-thumbnail main-img" src="@Model.MainPicture"
+             style="max-height: 360px; max-width: 360px" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <p><markdown>@Model.LongText</markdown></p>
+    </div>
+</div>
+@if (Model.IsAdmin)
+{
+    <div class="row">
+        <div class="col-md-4">
+            <a href="@Url.Action("Edit", "Admin", new { id = Model.Id })">Edit</a>
+        </div>
+        <div class="col-md-4"></div>
+        <div class="col-md-4" style="text-align:right">
+            <a href="@Url.Action("Delete", "Admin", new { id = Model.Id })">Delete</a>
+        </div>
+    </div>
+}
+@foreach (var comment in Model.DisplayedComments)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <h4>@comment.Author.UserName</h4>
+            <p><markdown>@comment.Text</markdown></p>
+            <div class="row">
+                <div class="col-md-4">
+                    <span>@comment.DateTimeStr</span>
+                </div>
+                @if (Model.IsAdmin || Model.CurrentUser == comment.AuthorId)
+                {
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4" style="text-align:right">
+                        <a href="@Url.Action("Delete", "Post", new { id=comment.Id, postId = Model.Id, page=Model.PageNum })">Delete</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <ul class="pagination" data-bind="html: pagination">
+            <li class="page-item @(Model.PageNum == 1 ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Show", "Post", new { id = Model.Id, page=Model.PageNum - 1 })"><</a>
+            </li>
+            <li class="page-item @(Model.PageNum == 1 ? "active" : "")">
+                <a class="page-link" href="@Url.Action("Show", "Post", new { id = Model.Id, page=1 })">1</a>
+            </li>
+            @{
+                var iMin = 2;
+                var iMax = Model.PageCount - 1;
+                bool isNotEnd = false;
+                const int DIAP = 3;
+            }
+            @if (Model.PageNum - DIAP > iMin)
+            {
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+                iMin = Model.PageNum - DIAP;
+            }
+            @if (Model.PageNum + DIAP < iMax)
+            {
+                isNotEnd = true;
+                iMax = Model.PageNum + DIAP;
+            }
+            @for (int i = iMin; i <= iMax; i++)
+            {
+                <li class="page-item @(Model.PageNum == i ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Show", "Post", new { id = Model.Id, page = i })">@i</a>
+                </li>
+            }
+            @if (isNotEnd)
+            {
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+            }
+            @if (Model.PageCount > 1)
+            {
+                <li class="page-item @(Model.PageNum == Model.PageCount ? "active" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Show", "Post", new { id = Model.Id, page = Model.PageCount })">@Model.PageCount</a>
+                </li>
+            }
+            <li class="page-item @(Model.PageNum >= Model.PageCount ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Show", "Post", new { id = Model.Id, page = Model.PageNum + 1 })">></a>
+            </li>
+        </ul>
+    </div>
+</div>
+@if (Model.CurrentUser != null)
+{
+    <form asp-antiforgery="true" asp-action="Create" asp-controller="Post">
+        @Html.HiddenFor(x => x.Id)
+        <div>
+            <div class="validation" asp-validation-summary="ModelOnly"></div>
+            <div>
+                <label asp-for="AddedComment.Text"></label><br />
+                <textarea type="text" asp-for="AddedComment.Text" style="resize: none; align-self:center" cols="100"
+                    rows="5"></textarea>
+                <span asp-validation-for="AddedComment.Text"></span>
+            </div>
+            <div>
+                <input type="submit" value="Save" />
+            </div>
+        </div>
+    </form>
+}
+
